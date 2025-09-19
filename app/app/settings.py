@@ -175,8 +175,8 @@ MIDDLEWARE = [
 # CELERY & CACHE CONFIGURATION
 # =======================================================
 
-CELERY_BROKER_URL = environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
-CELERY_RESULT_BACKEND = environ.get("CELERY_RESULT_BACKEND")
+CELERY_BROKER_URL = environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = environ.get('CELERY_RESULT_BACKEND')
 CELERY_TASK_IGNORE_RESULT = CELERY_RESULT_BACKEND is None
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -193,13 +193,13 @@ else:
 CELERY_BROKER_POOL_LIMIT = int(getenv('CELERY_BROKER_POOL_LIMIT', 10))
 CELERY_BROKER_HEARTBEAT = int(getenv('CELERY_BROKER_HEARTBEAT', 30))
 
-CACHE_URL = environ.get("CACHE_URL", "redis://localhost:6379/2")
+CACHE_URL = environ.get('CACHE_URL', 'redis://localhost:6379/2')
 CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": CACHE_URL,
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': CACHE_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         },
     }
 }
