@@ -175,23 +175,21 @@ MIDDLEWARE = [
 # CELERY & CACHE CONFIGURATION
 # =======================================================
 
-CELERY_BROKER_URL = environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = environ.get('CELERY_RESULT_BACKEND')
-CELERY_TASK_IGNORE_RESULT = CELERY_RESULT_BACKEND is None
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TASK_RESULT_EXPIRES = int(getenv('CELERY_TASK_RESULT_EXPIRES', 3600))
-CELERY_RESULT_EXPIRES = CELERY_TASK_RESULT_EXPIRES
-CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-CELERY_BROKER_CONNECTION_TIMEOUT = float(getenv('CELERY_BROKER_CONNECTION_TIMEOUT', 30))
-CELERY_BROKER_CONNECTION_MAX_RETRIES = getenv('CELERY_BROKER_CONNECTION_MAX_RETRIES')
-if CELERY_BROKER_CONNECTION_MAX_RETRIES not in (None, ''):
-    CELERY_BROKER_CONNECTION_MAX_RETRIES = int(CELERY_BROKER_CONNECTION_MAX_RETRIES)
+broker_url = environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+result_backend = environ.get('CELERY_RESULT_BACKEND')
+accept_content = ['json']
+task_serializer = 'json'
+result_serializer = 'json'
+result_expires = int(getenv('CELERY_TASK_RESULT_EXPIRES', 3600))
+broker_connection_retry_on_startup = True
+broker_connection_timeout = float(getenv('CELERY_BROKER_CONNECTION_TIMEOUT', 30))
+broker_connection_max_retries = getenv('CELERY_BROKER_CONNECTION_MAX_RETRIES')
+if broker_connection_max_retries not in (None, ''):
+    broker_connection_max_retries = int(broker_connection_max_retries)
 else:
-    CELERY_BROKER_CONNECTION_MAX_RETRIES = None
-CELERY_BROKER_POOL_LIMIT = int(getenv('CELERY_BROKER_POOL_LIMIT', 10))
-CELERY_BROKER_HEARTBEAT = int(getenv('CELERY_BROKER_HEARTBEAT', 30))
+    broker_connection_max_retries = None
+broker_pool_limit = int(getenv('CELERY_BROKER_POOL_LIMIT', 10))
+broker_heartbeat = int(getenv('CELERY_BROKER_HEARTBEAT', 30))
 
 CACHE_URL = environ.get('CACHE_URL', 'redis://localhost:6379/2')
 CACHES = {
