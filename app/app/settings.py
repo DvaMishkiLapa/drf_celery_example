@@ -151,6 +151,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_celery_results',
+    'django_celery_beat',
     'corsheaders'
 ]
 
@@ -168,6 +170,46 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# =======================================================
+# CELERY & CACHE CONFIGURATION
+# =======================================================
+
+CELERY_BROKER_URL = environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = environ.get("CELERY_RESULT_BACKEND")
+CELERY_TASK_IGNORE_RESULT = CELERY_RESULT_BACKEND is None
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_RESULT_EXPIRES = int(getenv('CELERY_TASK_RESULT_EXPIRES', 3600))
+CELERY_RESULT_EXPIRES = CELERY_TASK_RESULT_EXPIRES
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_BROKER_CONNECTION_TIMEOUT = float(getenv('CELERY_BROKER_CONNECTION_TIMEOUT', 30))
+CELERY_BROKER_CONNECTION_MAX_RETRIES = getenv('CELERY_BROKER_CONNECTION_MAX_RETRIES')
+if CELERY_BROKER_CONNECTION_MAX_RETRIES not in (None, ''):
+    CELERY_BROKER_CONNECTION_MAX_RETRIES = int(CELERY_BROKER_CONNECTION_MAX_RETRIES)
+else:
+    CELERY_BROKER_CONNECTION_MAX_RETRIES = None
+CELERY_BROKER_POOL_LIMIT = int(getenv('CELERY_BROKER_POOL_LIMIT', 10))
+CELERY_BROKER_HEARTBEAT = int(getenv('CELERY_BROKER_HEARTBEAT', 30))
+
+CACHE_URL = environ.get("CACHE_URL", "redis://localhost:6379/2")
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": CACHE_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULE_FILENAME = environ.get(
+    'CELERY_BEAT_SCHEDULE_FILENAME',
+    str(BASE_DIR / 'celerybeat-schedule.db'),
+)
+
 
 # =======================================================
 # SWAGGER CONFIGURATION
