@@ -5,7 +5,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from .models import Lead, LeadFollowup, LeadFollowupRule, LeadStatus
-from .tasks import task_collect_followups
+from .tasks import task_collect_followups, task_send_followup
 
 
 class CollectFollowupsTaskTest(TestCase):
@@ -16,17 +16,12 @@ class CollectFollowupsTaskTest(TestCase):
         # Generate a phone number until we find a value that does not collide with existing leads
         while True:
             # Keep format numeric and deterministic length
-            phone_number = '79' + ''.join(str(secrets.randbelow(10)) for _ in range(8))
+            phone_number = '+79' + ''.join(str(secrets.randbelow(10)) for _ in range(8))
             if not Lead.objects.filter(phone=phone_number).exists():
                 break
 
         lead = Lead.objects.create(phone=phone_number, status=LeadStatus.NEW)
-        rule = LeadFollowupRule.objects.create(
-            text='ping',
-            status=LeadStatus.NEW,
-            delay=1,
-            is_enabled=True,
-        )
+        rule = LeadFollowupRule.objects.create(text='ping', status=LeadStatus.NEW, delay=1, is_enabled=True)
         # Push the timestamp far enough back so the lead definitely exceeds the rule delay
         overdue_timestamp = timezone.now() - timedelta(minutes=rule.delay * 2)
         Lead.objects.filter(pk=lead.pk).update(updated_at=overdue_timestamp)
@@ -37,3 +32,15 @@ class CollectFollowupsTaskTest(TestCase):
         # Assert that a follow-up record was created for the overdue lead
         followup = LeadFollowup.objects.filter(lead=lead, rule=rule).first()
         self.assertIsNotNone(followup)
+
+    def test_skip_recent_followup(self):
+        phone_number = '+79' + ''.join(str(secrets.randbelow(10)) for _ in range(8))
+        lead = Lead.objects.create(phone=phone_number, status=LeadStatus.NEW)
+        rule = LeadFollowupRule.objects.create(text='ping', status=LeadStatus.NEW, delay=1, is_enabled=True)
+        LeadFollowup.objects.create(lead=lead, rule=rule, created_at=timezone.now())
+
+        with self.assertLogs('app', level='DEBUG') as log_capture:
+            task_send_followup(lead_id=lead.id, rule_id=rule.id)
+
+        self.assertTrue(any('Skip followup' in message for message in log_capture.output))
+        self.assertEqual(LeadFollowup.objects.filter(lead=lead, rule=rule).count(), 1)
