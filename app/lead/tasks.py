@@ -4,12 +4,16 @@ from time import sleep
 from typing import List, Tuple
 
 from celery import shared_task
+from django.conf import settings
 from django.db.models import (DurationField, Exists, ExpressionWrapper, F,
                               OuterRef, Value)
 from django.db.models.functions import Now
+from django.utils import timezone
 from lead import models
 
 logger = logging.getLogger('app')
+
+FOLLOWUP_REPEAT_THRESHOLD = timedelta(minutes=settings.FOLLOWUP_REPEAT_THRESHOLD)
 
 
 def send_sms(phone: str, text: str):
@@ -92,6 +96,20 @@ def task_collect_followups():
 def task_send_followup(lead_id: int, rule_id: int):
     '''Sends a followup to a lead'''
     logger.debug(f'task_send_followup: {lead_id}; {rule_id}')
+    cutoff = timezone.now() - FOLLOWUP_REPEAT_THRESHOLD
+    if models.LeadFollowup.objects.filter(
+        lead_id=lead_id,
+        rule_id=rule_id,
+        created_at__gte=cutoff,
+    ).exists():
+        logger.debug(
+            'Skip followup (lead=%s, rule=%s): recently sent within %s',
+            lead_id,
+            rule_id,
+            FOLLOWUP_REPEAT_THRESHOLD,
+        )
+        return
+
     lead_followup_payload = models.LeadFollowup.objects.create(
         lead_id=lead_id,
         rule_id=rule_id

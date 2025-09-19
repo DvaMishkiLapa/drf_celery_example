@@ -25,6 +25,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 # - SWAGGER CONFIGURATION
 # - CORS CONFIGURATION
 # - REST CONFIGURATION
+# - NOTIFICATIONS CONFIGURATION
 # =======================================================
 
 import sys
@@ -254,3 +255,9 @@ AUTH_PASSWORD_VALIDATORS = [
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+# =======================================================
+# NOTIFICATIONS CONFIGURATION
+# =======================================================
+
+FOLLOWUP_REPEAT_THRESHOLD = int(environ.get('FOLLOWUP_REPEAT_THRESHOLD', 1440))
