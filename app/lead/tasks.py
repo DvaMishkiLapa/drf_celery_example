@@ -1,6 +1,7 @@
 import logging
 from datetime import timedelta
 from time import sleep
+from typing import List, Tuple
 
 from celery import shared_task
 from django.db.models import (DurationField, Exists, ExpressionWrapper, F,
@@ -17,8 +18,7 @@ def send_sms(phone: str, text: str):
     logger.debug(f'send_sms: {phone}: {text}')
 
 
-@shared_task(name='lead.task.task_collect_followups')
-def task_collect_followups():
+def _collect_simple_followups() -> List[Tuple[int, int]]:
     '''Find leads stalled in a status beyond rule delays and enqueue followups.'''
     # Translate rule.delay minutes into a database-level timedelta for filtering
     # Can't use timedelta(minutes=F('delay')): F('delay') is a database reference, while timedelta expects a plain number :(
@@ -44,41 +44,45 @@ def task_collect_followups():
         )
     ).values_list('id', flat=True)
 
-    payload = []  # Accumulate (lead_id, rule_id) pairs for Celery starmap.
-    # Iterate over rules that are currently active and have at least one matching lead.
-    eligible_rules = (
-        models.LeadFollowupRule.objects.filter(is_enabled=True)
-        .annotate(delay_interval=delay_interval)
-        .filter(Exists(lead_candidates))  # Keep only rules that actually have pending leads.
-        .values_list('id', 'status', 'delay_interval')
-    )
+    payload: List[Tuple[int, int]] = []  # Accumulate (lead_id, rule_id) pairs for Celery starmap
+    # Iterate over rules that are currently active and have at least one matching lead
+    eligible_rules = models.LeadFollowupRule.objects.filter(
+        is_enabled=True
+    ).annotate(
+        delay_interval=delay_interval
+    ).filter(
+        Exists(lead_candidates)  # Keep only rules that actually have pending leads
+    ).values_list('id', 'status', 'delay_interval')
 
     for rule_id, status, delay_span in eligible_rules:
-        # Recompute stalled leads with the resolved delay to avoid reusing an outdated annotated value.
-        stalled_leads = (
-            models.Lead.objects.annotate(
-                elapsed=ExpressionWrapper(
-                    Now() - F('updated_at'),
-                    output_field=DurationField(),
+        # Recompute stalled leads with the resolved delay to avoid reusing an outdated annotated value
+        stalled_leads = models.Lead.objects.annotate(
+            elapsed=ExpressionWrapper(
+                Now() - F('updated_at'),
+                output_field=DurationField(),
+            )
+        ).filter(
+            status=status,
+            elapsed__gte=delay_span,
+        ).exclude(
+            Exists(
+                models.LeadFollowup.objects.filter(
+                    lead_id=OuterRef('id'),
+                    rule_id=rule_id,
+                    created_at__gte=OuterRef('updated_at'),
                 )
             )
-            .filter(
-                status=status,
-                elapsed__gte=delay_span,
-            )
-            .exclude(
-                Exists(
-                    models.LeadFollowup.objects.filter(
-                        lead_id=OuterRef('id'),
-                        rule_id=rule_id,
-                        created_at__gte=OuterRef('updated_at'),
-                    )
-                )
-            )
-            .values_list('id', flat=True)
-        )
+        ).values_list('id', flat=True)
+
         payload.extend((lead_id, rule_id) for lead_id in stalled_leads)
 
+    return payload
+
+
+@shared_task(name='lead.task.task_collect_followups')
+def task_collect_followups():
+    '''Find leads stalled in a status beyond rule delays and enqueue followups'''
+    payload = _collect_simple_followups()
     if payload:
         # More convenient than delay for every task
         task_send_followup.starmap(payload).apply_async()
