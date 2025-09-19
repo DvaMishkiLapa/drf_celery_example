@@ -35,6 +35,40 @@ services:
         networks:
             - app-network
 
+    worker:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        command: celery -A app worker --loglevel=info
+        depends_on:
+            - postgres
+            - redis
+            - app
+        volumes:
+            - ./logs:/app/logs
+        environment:
+            DJANGO_SETTINGS_MODULE: app.settings
+        env_file:
+            - env.list
+        networks:
+            - app-network
+
+    beat:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        command: celery -A app beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+        depends_on:
+            - redis
+            - postgres
+        environment:
+            DJANGO_SETTINGS_MODULE: app.settings
+        env_file:
+            - env.list
+        networks:
+            - app-network
+        restart: unless-stopped
+
 networks:
     app-network:
         driver: bridge
