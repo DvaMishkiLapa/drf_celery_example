@@ -1,0 +1,40 @@
+services:
+
+    postgres:
+        image: postgres:17.6-alpine
+        ports:
+            - "5432:5432"
+        networks:
+            - app-network
+        environment:
+            PGDATA: /var/lib/postgresql/data/pgdata
+        env_file:
+            - env.list
+        volumes:
+            - .:/var/lib/postgresql/data
+        restart: unless-stopped
+
+    app:
+        build: .
+        ports:
+            - "80:8080"
+        networks:
+            - app-network
+        depends_on:
+            - redis
+            - postgres
+        env_file:
+            - env.list
+        restart: unless-stopped
+
+    redis:
+        image: redis:alpine
+        hostname: redis
+        ports:
+            - "6379:6379"
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge

@@ -1,0 +1,8 @@
+LOG_LEVEL="DEBUG"
+API_HOST="localhost"
+
+POSTGRES_HOST="localhost"
+POSTGRES_PORT="5432"
+POSTGRES_USER="app_user"
+POSTGRES_PASSWORD="pass"
+POSTGRES_DB="app_db"
