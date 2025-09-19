@@ -6,8 +6,7 @@ from celery import shared_task
 from django.db.models import (DurationField, Exists, ExpressionWrapper, F,
                               OuterRef, Value)
 from django.db.models.functions import Now
-
-from . import models
+from lead import models
 
 logger = logging.getLogger('app')
 
