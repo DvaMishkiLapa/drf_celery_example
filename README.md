@@ -11,7 +11,10 @@ An example project built with Django REST Framework and Celery.
     - [2.1 Bootstrap Commands](#21-bootstrap-commands)
     - [2.2 Run Commands](#22-run-commands)
     - [2.3 Miscellaneous Commands](#23-miscellaneous-commands)
-  - [3. ER-diagram](#3-er-diagram)
+  - [3. Nix Flake Setup](#3-nix-flake-setup)
+    - [3.1 Run Commands](#31-run-commands)
+    - [3.2 Problem solving](#32-problem-solving)
+  - [4. ER-diagram](#4-er-diagram)
 
 ## 1. Configuration Variables
 
@@ -36,8 +39,9 @@ An example project built with Django REST Framework and Celery.
 | `CELERY_BROKER_HEARTBEAT`              | `30`                           | Heartbeat interval (seconds) used to keep the broker connection alive and detect drops.                                                   |
 | `FOLLOWUP_REPEAT_THRESHOLD`            | `1440`                         | Minutes to suppress a repeat follow-up notification after the previous one was sent.                                                      |
 | `TASK_LOCK_TIMEOUT`                    | `60`                           | Expiration (seconds) for the database lock used by the `singleton_task` decorator; after this delay a stale lock is considered abandoned. |
+| `NIX_DAPHNE_PORT`                      | `8081`                         | Port used for web communication with the Django project. Used when starting daphne, only in the Nix Flake build.                          |
 
-Configuration files for Docker builds - `env.list`.
+Configuration files for Docker and Nix builds - `env.list`.
 
 If you want to run Django locally like `python manage.py runserver 0.0.0.0:8000`, you can use `local_env.list`:
 
@@ -100,6 +104,50 @@ Create an admin user:
 docker compose run --rm app python3 manage.py createsuperuser
 ```
 
-## 3. ER-diagram
+## 3. Nix Flake Setup
+
+Nix provides an alternative stack that mirrors the Docker Compose.
+Install [Nix](https://nixos.org/download) before continuing.
+The flake expects the `nix-command` and `flakes` experimental features to be enabled.
+Either set them globally (e.g. add `experimental-features = nix-command flakes` to `~/.config/nix/nix.conf`)
+or pass `--extra-experimental-features 'nix-command flakes'` to each command shown below.
+
+### 3.1 Run Commands
+
+All flake outputs live in the `nix/` directory. Prefix the commands with
+`./nix` (as in the examples) if you keep the repo layout unchanged.
+
+Enter a development shell with Python, PostgreSQL, Redis, `uv`, and helper tools:
+
+```bash
+nix --extra-experimental-features 'nix-command flakes' develop ./nix
+```
+
+Launch the entire stack (web, worker, beat, PostgreSQL, Redis) in the foreground:
+
+```bash
+nix --extra-experimental-features 'nix-command flakes' run ./nix#stack
+```
+
+Or in Docker Compose Like mode:
+
+```bash
+nix --extra-experimental-features 'nix-command flakes' run ./nix#stack -- --tui=false
+```
+
+Logs are multiplexed by `process-compose`; press `q` to exit while leaving services
+stopped cleanly.
+
+Both commands reuse `env.list`. Host names such as `postgres` and `redis` are rewritten to `127.0.0.1` automatically for the Nix setup.
+
+### 3.2 Problem solving
+
+My Nix Flake build script is far from ideal. If something goes wrong and I'm left with child processes:
+
+```bash
+./nix/scripts/kill-services.sh
+```
+
+## 4. ER-diagram
 
 ![ER-diagram](./other/all_models.png)
