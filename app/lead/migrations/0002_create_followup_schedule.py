@@ -43,8 +43,7 @@ def remove_collect_followups_schedule(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_celery_beat', '0019_alter_periodictasks_options'),
-        ('lead', '0001_initial'),
+        ('lead', '0001_initial')
     ]
 
     operations = [
