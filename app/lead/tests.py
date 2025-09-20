@@ -31,6 +31,20 @@ class CollectFollowupsTaskTest(TestCase):
         followup = LeadFollowup.objects.filter(lead=lead, rule=rule).first()
         self.assertIsNotNone(followup)
 
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True, CELERY_TASK_EAGER_PROPAGATES=True)
+    def test_disabled_rule_skips_followup(self):
+        phone_number = _get_random_phone_number()
+        lead = Lead.objects.create(phone=phone_number, status=LeadStatus.NEW)
+        # Disabled rule should be ignored even though delay and status match
+        rule = LeadFollowupRule.objects.create(text='ping', status=LeadStatus.NEW, delay=1, is_enabled=False)
+        overdue_timestamp = timezone.now() - timedelta(minutes=rule.delay * 2)
+        Lead.objects.filter(pk=lead.pk).update(updated_at=overdue_timestamp)
+
+        result = task_collect_followups.delay()
+        result.get(timeout=rule.delay + 1)
+
+        self.assertFalse(LeadFollowup.objects.filter(lead=lead, rule=rule).exists())
+
     def test_skip_recent_followup(self):
         phone_number = _get_random_phone_number()
         lead = Lead.objects.create(phone=phone_number, status=LeadStatus.NEW)
