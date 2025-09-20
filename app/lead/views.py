@@ -1,12 +1,17 @@
 import logging
 
+from django.db import transaction
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiParameter, extend_schema
+from drf_spectacular.utils import (OpenApiExample, OpenApiParameter,
+                                   extend_schema)
 from lead.models import Lead, LeadEvent, LeadFollowup, LeadFollowupRule
 from lead.pagination import CommonPagination
 from lead.serializers import (LeadEventSerializer, LeadFollowupRuleSerializer,
-                              LeadFollowupSerializer, LeadSerializer)
-from rest_framework.generics import ListAPIView
+                              LeadFollowupSerializer, LeadSerializer,
+                              NewLeadStatusValidator)
+from rest_framework import status as http_status
+from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.response import Response
 
 logger = logging.getLogger('app')
 
@@ -249,3 +254,44 @@ class LeadFollowupRuleListView(ListAPIView):
 
         ordering = f'-{order_by}' if order_dir == 'desc' else order_by
         return LeadFollowupRule.objects.order_by(ordering)
+
+
+@extend_schema(
+    description='Updates the status of a Lead and makes changes to its status history.',
+    request={'application/json': NewLeadStatusValidator},
+    responses={200: LeadEventSerializer()},
+    examples=[
+        OpenApiExample(
+            name='ex1',
+            summary='Set status SUBMITTED',
+            value={
+                'lead_id': 1,
+                'status': 'submitted'
+            },
+            media_type='application/json'
+        )
+    ]
+)
+class LeadEventCreateView(CreateAPIView):
+    serializer_class = NewLeadStatusValidator
+
+    def create(self, request, *args, **kwargs):
+        in_ser = self.get_serializer(data=request.data)
+        in_ser.is_valid(raise_exception=True)
+
+        lead_id = in_ser.validated_data['lead_id']
+        new_status = in_ser.validated_data['status']
+
+        with transaction.atomic():
+            lead = Lead.objects.select_for_update().get(pk=lead_id)
+            if lead.status != new_status:
+                lead.status = new_status
+                lead.save(update_fields=['status', 'updated_at'])
+
+            event = LeadEvent.objects.create(
+                lead=lead,
+                status=new_status
+            )
+
+        out_ser = LeadEventSerializer(event, context={'request': request})
+        return Response(out_ser.data, status=http_status.HTTP_201_CREATED)

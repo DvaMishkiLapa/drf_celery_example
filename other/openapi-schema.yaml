@@ -3,199 +3,234 @@ info:
   title: App API
   version: 1.0.0
 paths:
+  /lead/lead_event_create/:
+    post:
+      operationId: lead_lead_event_create_create
+      description: Updates the status of a Lead and makes changes to its status history.
+      tags:
+        - lead
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewLeadStatusValidator"
+            examples:
+              Ex1:
+                value:
+                  lead_id: 1
+                  status: submitted
+                summary: Set status SUBMITTED
+        required: true
+      security:
+        - cookieAuth: []
+        - basicAuth: []
+        - {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeadEvent"
+              examples:
+                Ex1:
+                  value:
+                    lead_id: 1
+                    status: submitted
+                  summary: Set status SUBMITTED
+          description: ""
   /lead/leads/:
     get:
       operationId: lead_leads_list
       description: Retrieve a paginated list of leads.
       parameters:
-      - in: query
-        name: limit
-        schema:
-          type: integer
-        description: Maximum number of leads to return.
-      - in: query
-        name: offset
-        schema:
-          type: integer
-        description: Number of records to skip before returning results.
-      - in: query
-        name: order_by
-        schema:
-          type: string
-          enum:
-          - id
-          - phone
-          - status
-          - updated_at
-          default: updated_at
-        description: Lead field used for ordering.
-      - in: query
-        name: order_dir
-        schema:
-          type: string
-          enum:
-          - asc
-          - desc
-          default: desc
-        description: Ordering direction. Use "asc" or "desc" (default).
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Maximum number of leads to return.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Number of records to skip before returning results.
+        - in: query
+          name: order_by
+          schema:
+            type: string
+            enum:
+              - id
+              - phone
+              - status
+              - updated_at
+            default: updated_at
+          description: Lead field used for ordering.
+        - in: query
+          name: order_dir
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: Ordering direction. Use "asc" or "desc" (default).
       tags:
-      - lead
+        - lead
       security:
-      - cookieAuth: []
-      - basicAuth: []
-      - {}
+        - cookieAuth: []
+        - basicAuth: []
+        - {}
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedLeadList'
-          description: ''
+                $ref: "#/components/schemas/PaginatedLeadList"
+          description: ""
   /lead/leads_events/:
     get:
       operationId: lead_leads_events_list
       description: Retrieve a paginated list of lead events.
       parameters:
-      - in: query
-        name: limit
-        schema:
-          type: integer
-        description: Maximum number of leads to return.
-      - in: query
-        name: offset
-        schema:
-          type: integer
-        description: Number of records to skip before returning results.
-      - in: query
-        name: order_by
-        schema:
-          type: string
-          enum:
-          - created_at
-          - id
-          - lead
-          - status
-          default: created_at
-        description: Lead field used for ordering.
-      - in: query
-        name: order_dir
-        schema:
-          type: string
-          enum:
-          - asc
-          - desc
-          default: desc
-        description: Ordering direction. Use "asc" or "desc" (default).
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Maximum number of leads to return.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Number of records to skip before returning results.
+        - in: query
+          name: order_by
+          schema:
+            type: string
+            enum:
+              - created_at
+              - id
+              - lead
+              - status
+            default: created_at
+          description: Lead field used for ordering.
+        - in: query
+          name: order_dir
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: Ordering direction. Use "asc" or "desc" (default).
       tags:
-      - lead
+        - lead
       security:
-      - cookieAuth: []
-      - basicAuth: []
-      - {}
+        - cookieAuth: []
+        - basicAuth: []
+        - {}
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedLeadEventList'
-          description: ''
+                $ref: "#/components/schemas/PaginatedLeadEventList"
+          description: ""
   /lead/leads_followup_rules/:
     get:
       operationId: lead_leads_followup_rules_list
       description: Retrieve a paginated list of lead followup rules.
       parameters:
-      - in: query
-        name: limit
-        schema:
-          type: integer
-        description: Maximum number of leads to return.
-      - in: query
-        name: offset
-        schema:
-          type: integer
-        description: Number of records to skip before returning results.
-      - in: query
-        name: order_by
-        schema:
-          type: string
-          enum:
-          - delay
-          - id
-          - is_enabled
-          - status
-          - text
-          default: status
-        description: Lead field used for ordering.
-      - in: query
-        name: order_dir
-        schema:
-          type: string
-          enum:
-          - asc
-          - desc
-          default: desc
-        description: Ordering direction. Use "asc" or "desc" (default).
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Maximum number of leads to return.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Number of records to skip before returning results.
+        - in: query
+          name: order_by
+          schema:
+            type: string
+            enum:
+              - delay
+              - id
+              - is_enabled
+              - status
+              - text
+            default: status
+          description: Lead field used for ordering.
+        - in: query
+          name: order_dir
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: Ordering direction. Use "asc" or "desc" (default).
       tags:
-      - lead
+        - lead
       security:
-      - cookieAuth: []
-      - basicAuth: []
-      - {}
+        - cookieAuth: []
+        - basicAuth: []
+        - {}
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedLeadFollowupRuleList'
-          description: ''
+                $ref: "#/components/schemas/PaginatedLeadFollowupRuleList"
+          description: ""
   /lead/leads_followups/:
     get:
       operationId: lead_leads_followups_list
       description: Retrieve a paginated list of lead followup.
       parameters:
-      - in: query
-        name: limit
-        schema:
-          type: integer
-        description: Maximum number of leads to return.
-      - in: query
-        name: offset
-        schema:
-          type: integer
-        description: Number of records to skip before returning results.
-      - in: query
-        name: order_by
-        schema:
-          type: string
-          enum:
-          - created_at
-          - id
-          - lead
-          - rule
-          default: created_at
-        description: Lead field used for ordering.
-      - in: query
-        name: order_dir
-        schema:
-          type: string
-          enum:
-          - asc
-          - desc
-          default: desc
-        description: Ordering direction. Use "asc" or "desc" (default).
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Maximum number of leads to return.
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Number of records to skip before returning results.
+        - in: query
+          name: order_by
+          schema:
+            type: string
+            enum:
+              - created_at
+              - id
+              - lead
+              - rule
+            default: created_at
+          description: Lead field used for ordering.
+        - in: query
+          name: order_dir
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: Ordering direction. Use "asc" or "desc" (default).
       tags:
-      - lead
+        - lead
       security:
-      - cookieAuth: []
-      - basicAuth: []
-      - {}
+        - cookieAuth: []
+        - basicAuth: []
+        - {}
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedLeadFollowupList'
-          description: ''
+                $ref: "#/components/schemas/PaginatedLeadFollowupList"
+          description: ""
   /schema/:
     get:
       operationId: schema_retrieve
@@ -205,125 +240,125 @@ paths:
         - YAML: application/vnd.oai.openapi
         - JSON: application/vnd.oai.openapi+json
       parameters:
-      - in: query
-        name: format
-        schema:
-          type: string
-          enum:
-          - json
-          - yaml
-      - in: query
-        name: lang
-        schema:
-          type: string
-          enum:
-          - af
-          - ar
-          - ar-dz
-          - ast
-          - az
-          - be
-          - bg
-          - bn
-          - br
-          - bs
-          - ca
-          - ckb
-          - cs
-          - cy
-          - da
-          - de
-          - dsb
-          - el
-          - en
-          - en-au
-          - en-gb
-          - eo
-          - es
-          - es-ar
-          - es-co
-          - es-mx
-          - es-ni
-          - es-ve
-          - et
-          - eu
-          - fa
-          - fi
-          - fr
-          - fy
-          - ga
-          - gd
-          - gl
-          - he
-          - hi
-          - hr
-          - hsb
-          - hu
-          - hy
-          - ia
-          - id
-          - ig
-          - io
-          - is
-          - it
-          - ja
-          - ka
-          - kab
-          - kk
-          - km
-          - kn
-          - ko
-          - ky
-          - lb
-          - lt
-          - lv
-          - mk
-          - ml
-          - mn
-          - mr
-          - ms
-          - my
-          - nb
-          - ne
-          - nl
-          - nn
-          - os
-          - pa
-          - pl
-          - pt
-          - pt-br
-          - ro
-          - ru
-          - sk
-          - sl
-          - sq
-          - sr
-          - sr-latn
-          - sv
-          - sw
-          - ta
-          - te
-          - tg
-          - th
-          - tk
-          - tr
-          - tt
-          - udm
-          - ug
-          - uk
-          - ur
-          - uz
-          - vi
-          - zh-hans
-          - zh-hant
+        - in: query
+          name: format
+          schema:
+            type: string
+            enum:
+              - json
+              - yaml
+        - in: query
+          name: lang
+          schema:
+            type: string
+            enum:
+              - af
+              - ar
+              - ar-dz
+              - ast
+              - az
+              - be
+              - bg
+              - bn
+              - br
+              - bs
+              - ca
+              - ckb
+              - cs
+              - cy
+              - da
+              - de
+              - dsb
+              - el
+              - en
+              - en-au
+              - en-gb
+              - eo
+              - es
+              - es-ar
+              - es-co
+              - es-mx
+              - es-ni
+              - es-ve
+              - et
+              - eu
+              - fa
+              - fi
+              - fr
+              - fy
+              - ga
+              - gd
+              - gl
+              - he
+              - hi
+              - hr
+              - hsb
+              - hu
+              - hy
+              - ia
+              - id
+              - ig
+              - io
+              - is
+              - it
+              - ja
+              - ka
+              - kab
+              - kk
+              - km
+              - kn
+              - ko
+              - ky
+              - lb
+              - lt
+              - lv
+              - mk
+              - ml
+              - mn
+              - mr
+              - ms
+              - my
+              - nb
+              - ne
+              - nl
+              - nn
+              - os
+              - pa
+              - pl
+              - pt
+              - pt-br
+              - ro
+              - ru
+              - sk
+              - sl
+              - sq
+              - sr
+              - sr-latn
+              - sv
+              - sw
+              - ta
+              - te
+              - tg
+              - th
+              - tk
+              - tr
+              - tt
+              - udm
+              - ug
+              - uk
+              - ur
+              - uz
+              - vi
+              - zh-hans
+              - zh-hant
       tags:
-      - schema
+        - schema
       security:
-      - cookieAuth: []
-      - basicAuth: []
-      - {}
+        - cookieAuth: []
+        - basicAuth: []
+        - {}
       responses:
-        '200':
+        "200":
           content:
             application/vnd.oai.openapi:
               schema:
@@ -341,7 +376,7 @@ paths:
               schema:
                 type: object
                 additionalProperties: {}
-          description: ''
+          description: ""
 components:
   schemas:
     Lead:
@@ -354,32 +389,32 @@ components:
           type: string
           maxLength: 32
         status:
-          $ref: '#/components/schemas/StatusEnum'
+          $ref: "#/components/schemas/StatusEnum"
         updated_at:
           type: string
           format: date-time
           readOnly: true
       required:
-      - id
-      - phone
-      - updated_at
+        - id
+        - phone
+        - updated_at
     LeadEvent:
       type: object
       properties:
         lead:
           allOf:
-          - $ref: '#/components/schemas/Lead'
+            - $ref: "#/components/schemas/Lead"
           readOnly: true
         status:
-          $ref: '#/components/schemas/StatusEnum'
+          $ref: "#/components/schemas/StatusEnum"
         created_at:
           type: string
           format: date-time
           readOnly: true
       required:
-      - created_at
-      - lead
-      - status
+        - created_at
+        - lead
+        - status
     LeadFollowup:
       type: object
       properties:
@@ -387,16 +422,16 @@ components:
           type: integer
         rule:
           allOf:
-          - $ref: '#/components/schemas/LeadFollowupRule'
+            - $ref: "#/components/schemas/LeadFollowupRule"
           readOnly: true
         created_at:
           type: string
           format: date-time
           readOnly: true
       required:
-      - created_at
-      - lead
-      - rule
+        - created_at
+        - lead
+        - rule
     LeadFollowupRule:
       type: object
       properties:
@@ -404,7 +439,7 @@ components:
           type: string
           maxLength: 140
         status:
-          $ref: '#/components/schemas/StatusEnum'
+          $ref: "#/components/schemas/StatusEnum"
         delay:
           type: integer
           maximum: 32767
@@ -412,14 +447,25 @@ components:
         is_enabled:
           type: boolean
       required:
-      - delay
-      - status
-      - text
+        - delay
+        - status
+        - text
+    NewLeadStatusValidator:
+      type: object
+      description: Validation of arguments for Lead's status updating
+      properties:
+        lead_id:
+          type: integer
+        status:
+          $ref: "#/components/schemas/StatusEnum"
+      required:
+        - lead_id
+        - status
     PaginatedLeadEventList:
       type: object
       required:
-      - count
-      - results
+        - count
+        - results
       properties:
         count:
           type: integer
@@ -437,12 +483,12 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/LeadEvent'
+            $ref: "#/components/schemas/LeadEvent"
     PaginatedLeadFollowupList:
       type: object
       required:
-      - count
-      - results
+        - count
+        - results
       properties:
         count:
           type: integer
@@ -460,12 +506,12 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/LeadFollowup'
+            $ref: "#/components/schemas/LeadFollowup"
     PaginatedLeadFollowupRuleList:
       type: object
       required:
-      - count
-      - results
+        - count
+        - results
       properties:
         count:
           type: integer
@@ -483,12 +529,12 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/LeadFollowupRule'
+            $ref: "#/components/schemas/LeadFollowupRule"
     PaginatedLeadList:
       type: object
       required:
-      - count
-      - results
+        - count
+        - results
       properties:
         count:
           type: integer
@@ -506,14 +552,14 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/Lead'
+            $ref: "#/components/schemas/Lead"
     StatusEnum:
       enum:
-      - new
-      - submitted
-      - verified
-      - paid
-      - lost
+        - new
+        - submitted
+        - verified
+        - paid
+        - lost
       type: string
       description: |-
         * `new` - New
