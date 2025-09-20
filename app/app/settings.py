@@ -42,6 +42,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT_URLCONF = 'app.urls'
 WSGI_APPLICATION = 'app.wsgi.application'
 SECRET_KEY = environ.get('DJANGO_SECRET_KEY', get_random_secret_key())
+if not SECRET_KEY:
+    SECRET_KEY = get_random_secret_key()
 
 ALLOWED_HOSTS = ['localhost', 'app']
 api_host = getenv('API_HOST')
@@ -193,7 +195,7 @@ result_serializer = 'json'
 result_expires = int(getenv('CELERY_TASK_RESULT_EXPIRES', 3600))
 broker_connection_retry_on_startup = True
 broker_connection_timeout = float(getenv('CELERY_BROKER_CONNECTION_TIMEOUT', 30))
-broker_connection_max_retries = getenv('CELERY_BROKER_CONNECTION_MAX_RETRIES')
+broker_connection_max_retries = getenv('CELERY_BROKER_CONNECTION_MAX_RETRIES', 0)
 if broker_connection_max_retries not in (None, ''):
     broker_connection_max_retries = int(broker_connection_max_retries)
 else:
