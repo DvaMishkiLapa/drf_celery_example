@@ -1,0 +1,531 @@
+openapi: 3.0.3
+info:
+  title: App API
+  version: 1.0.0
+paths:
+  /lead/leads/:
+    get:
+      operationId: lead_leads_list
+      description: Retrieve a paginated list of leads.
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Maximum number of leads to return.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        description: Number of records to skip before returning results.
+      - in: query
+        name: order_by
+        schema:
+          type: string
+          enum:
+          - id
+          - phone
+          - status
+          - updated_at
+          default: updated_at
+        description: Lead field used for ordering.
+      - in: query
+        name: order_dir
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+        description: Ordering direction. Use "asc" or "desc" (default).
+      tags:
+      - lead
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLeadList'
+          description: ''
+  /lead/leads_events/:
+    get:
+      operationId: lead_leads_events_list
+      description: Retrieve a paginated list of lead events.
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Maximum number of leads to return.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        description: Number of records to skip before returning results.
+      - in: query
+        name: order_by
+        schema:
+          type: string
+          enum:
+          - created_at
+          - id
+          - lead
+          - status
+          default: created_at
+        description: Lead field used for ordering.
+      - in: query
+        name: order_dir
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+        description: Ordering direction. Use "asc" or "desc" (default).
+      tags:
+      - lead
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLeadEventList'
+          description: ''
+  /lead/leads_followup_rules/:
+    get:
+      operationId: lead_leads_followup_rules_list
+      description: Retrieve a paginated list of lead followup rules.
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Maximum number of leads to return.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        description: Number of records to skip before returning results.
+      - in: query
+        name: order_by
+        schema:
+          type: string
+          enum:
+          - delay
+          - id
+          - is_enabled
+          - status
+          - text
+          default: status
+        description: Lead field used for ordering.
+      - in: query
+        name: order_dir
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+        description: Ordering direction. Use "asc" or "desc" (default).
+      tags:
+      - lead
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLeadFollowupRuleList'
+          description: ''
+  /lead/leads_followups/:
+    get:
+      operationId: lead_leads_followups_list
+      description: Retrieve a paginated list of lead followup.
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Maximum number of leads to return.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        description: Number of records to skip before returning results.
+      - in: query
+        name: order_by
+        schema:
+          type: string
+          enum:
+          - created_at
+          - id
+          - lead
+          - rule
+          default: created_at
+        description: Lead field used for ordering.
+      - in: query
+        name: order_dir
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+        description: Ordering direction. Use "asc" or "desc" (default).
+      tags:
+      - lead
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLeadFollowupList'
+          description: ''
+  /schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+components:
+  schemas:
+    Lead:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        phone:
+          type: string
+          maxLength: 32
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - phone
+      - updated_at
+    LeadEvent:
+      type: object
+      properties:
+        lead:
+          allOf:
+          - $ref: '#/components/schemas/Lead'
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - lead
+      - status
+    LeadFollowup:
+      type: object
+      properties:
+        lead:
+          type: integer
+        rule:
+          allOf:
+          - $ref: '#/components/schemas/LeadFollowupRule'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - lead
+      - rule
+    LeadFollowupRule:
+      type: object
+      properties:
+        text:
+          type: string
+          maxLength: 140
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        delay:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        is_enabled:
+          type: boolean
+      required:
+      - delay
+      - status
+      - text
+    PaginatedLeadEventList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeadEvent'
+    PaginatedLeadFollowupList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeadFollowup'
+    PaginatedLeadFollowupRuleList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeadFollowupRule'
+    PaginatedLeadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lead'
+    StatusEnum:
+      enum:
+      - new
+      - submitted
+      - verified
+      - paid
+      - lost
+      type: string
+      description: |-
+        * `new` - New
+        * `submitted` - Submitted
+        * `verified` - Verified
+        * `paid` - Paid
+        * `lost` - Lost
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
