@@ -6,7 +6,7 @@ from typing import List, Tuple
 from celery import shared_task
 from django.conf import settings
 from django.db.models import (DurationField, Exists, ExpressionWrapper, F,
-                              OuterRef, Value)
+                              OuterRef, Q, Value)
 from django.db.models.functions import Now
 from django.utils import timezone
 from lead import models
@@ -21,7 +21,7 @@ FOLLOWUP_REPEAT_THRESHOLD = timedelta(minutes=settings.FOLLOWUP_REPEAT_THRESHOLD
 def send_sms(phone: str, text: str):
     '''Sends an SMS to a phone number'''
     sleep(3)
-    logger.debug(f'send_sms: {phone}: {text}')
+    logger.debug(f'[===================== send_sms: {phone}: {text} =====================]')
 
 
 def _collect_simple_followups() -> List[Tuple[int, int]]:
@@ -29,6 +29,8 @@ def _collect_simple_followups() -> List[Tuple[int, int]]:
     # Translate rule.delay minutes into a database-level timedelta for filtering
     # Can't use timedelta(minutes=F('delay')): F('delay') is a database reference, while timedelta expects a plain number :(
     delay_interval = ExpressionWrapper(F('delay') * Value(timedelta(minutes=1)), output_field=DurationField())
+    repeat_cutoff = timezone.now() - FOLLOWUP_REPEAT_THRESHOLD
+    recent_followup_guard = Q(created_at__gte=OuterRef('updated_at')) & Q(created_at__gte=repeat_cutoff)
 
     # Build a subquery that returns ids of leads whose updated_at exceeds the rule delay
     # and that have not already received a follow-up for the same rule since the last status change
@@ -44,9 +46,8 @@ def _collect_simple_followups() -> List[Tuple[int, int]]:
         Exists(
             models.LeadFollowup.objects.filter(
                 lead_id=OuterRef('id'),
-                rule_id=OuterRef('pk'),
-                created_at__gte=OuterRef('updated_at'),  # Avoid resending since the last status change
-            )
+                rule_id=OuterRef('pk')
+            ).filter(recent_followup_guard)
         )
     ).values_list('id', flat=True)
 
@@ -75,8 +76,7 @@ def _collect_simple_followups() -> List[Tuple[int, int]]:
                 models.LeadFollowup.objects.filter(
                     lead_id=OuterRef('id'),
                     rule_id=rule_id,
-                    created_at__gte=OuterRef('updated_at'),
-                )
+                ).filter(recent_followup_guard)
             )
         ).values_list('id', flat=True)
 
