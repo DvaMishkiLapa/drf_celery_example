@@ -95,3 +95,13 @@ class LeadFollowup(models.Model):
                 name='lead_followup_history_idx'
             ),  # Speed timeline queries for followups per lead
         ]
+
+
+class TaskExecutionLock(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+    locked_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['name']),
+        ]

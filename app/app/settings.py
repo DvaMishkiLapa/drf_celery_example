@@ -48,6 +48,8 @@ api_host = getenv('API_HOST')
 if api_host:
     ALLOWED_HOSTS.extend([d.strip() for d in api_host.split(';') if d.strip()])
 
+TASK_LOCK_TIMEOUT = int(environ.get('TASK_LOCK_TIMEOUT', 60))
+
 # =======================================================
 # LOGGING CONFIGURATION
 # =======================================================

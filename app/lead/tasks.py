@@ -11,6 +11,8 @@ from django.db.models.functions import Now
 from django.utils import timezone
 from lead import models
 
+from app.lockers import singleton_task
+
 logger = logging.getLogger('app')
 
 FOLLOWUP_REPEAT_THRESHOLD = timedelta(minutes=settings.FOLLOWUP_REPEAT_THRESHOLD)
@@ -84,6 +86,7 @@ def _collect_simple_followups() -> List[Tuple[int, int]]:
 
 
 @shared_task(name='lead.task.task_collect_followups')
+@singleton_task('lead.task.task_collect_followups')
 def task_collect_followups():
     '''Find leads stalled in a status beyond rule delays and enqueue followups'''
     payload = _collect_simple_followups()
