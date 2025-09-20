@@ -37,9 +37,20 @@ An example project built with Django REST Framework and Celery.
 | `FOLLOWUP_REPEAT_THRESHOLD`            | `1440`                         | Minutes to suppress a repeat follow-up notification after the previous one was sent.                                                      |
 | `TASK_LOCK_TIMEOUT`                    | `60`                           | Expiration (seconds) for the database lock used by the `singleton_task` decorator; after this delay a stale lock is considered abandoned. |
 
+Configuration files for Docker builds - `env.list`.
+
+If you want to run Django locally like `python manage.py runserver 0.0.0.0:8000`, you can use `local_env.list`:
+
+```bash
+set -a
+source ./local_env.list
+set +a
+```
+
 ## 2. Docker Compose Setup
 
-Docker Compose spins up the web app, Celery workers, PostgreSQL, and Redis in one network. Install [Docker](https://docs.docker.com/engine/install) and [Docker Compose](https://docs.docker.com/compose/install) before continuing.
+Docker Compose spins up the web app, Celery workers, PostgreSQL, and Redis in one network.
+Install [Docker](https://docs.docker.com/engine/install) and [Docker Compose](https://docs.docker.com/compose/install) before continuing.
 
 ### 2.1 Bootstrap Commands
 
