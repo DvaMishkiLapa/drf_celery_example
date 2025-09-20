@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-# from django.conf import settings
 from django.db import models
 
 
@@ -29,7 +26,7 @@ class Lead(models.Model):
             models.Index(
                 fields=['status'],
                 name='lead_status_idx'
-            ),  # Accelerate queries that fetch all leads in a particular pipeline step
+            )  # Accelerate queries that fetch all leads in a particular pipeline step
         ]
 
     def __str__(self) -> str:
@@ -49,7 +46,7 @@ class LeadEvent(models.Model):
             models.Index(
                 fields=['lead', '-created_at'],
                 name='lead_event_latest_idx'
-            ),  # Support queries that grab 'latest event per lead' without table scans
+            )  # Support queries that grab 'latest event per lead' without table scans
         ]
 
     def __str__(self) -> str:
@@ -73,13 +70,13 @@ class LeadFollowupRule(models.Model):
             models.Index(
                 fields=['status', 'delay'],
                 name='lead_rule_status_delay_idx'
-            ),  # Fast rule selection when matching delay windows
+            )  # Fast rule selection when matching delay windows
         ]
         constraints = [
             models.UniqueConstraint(
                 fields=['status', 'delay'],
-                name='lead_rule_status_delay_uniq',
-            ),  # Prevent duplicate followup delay rules per status so scheduling logic stays deterministic
+                name='lead_rule_status_delay_uniq'
+            )  # Prevent duplicate followup delay rules per status so scheduling logic stays deterministic
         ]
 
     def __str__(self) -> str:
@@ -91,9 +88,7 @@ class LeadFollowup(models.Model):
     Data on the timing of sending notifications
     '''
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='followups')  # History for auditing which messages were sent to a lead
-    rule = models.ForeignKey(
-        LeadFollowupRule, on_delete=models.CASCADE, related_name='followups'
-    )
+    rule = models.ForeignKey(LeadFollowupRule, on_delete=models.CASCADE, related_name='followups')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -101,7 +96,7 @@ class LeadFollowup(models.Model):
             models.Index(
                 fields=['lead', '-created_at'],
                 name='lead_followup_history_idx'
-            ),  # Speed timeline queries for followups per lead
+            )  # Speed timeline queries for followups per lead
         ]
 
 
@@ -111,5 +106,5 @@ class TaskExecutionLock(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['name']),
+            models.Index(fields=['name'])
         ]

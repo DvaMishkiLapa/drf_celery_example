@@ -1,7 +1,6 @@
 from django.contrib import admin
-
-from .models import (Lead, LeadEvent, LeadFollowup, LeadFollowupRule,
-                     TaskExecutionLock)
+from lead.models import (Lead, LeadEvent, LeadFollowup, LeadFollowupRule,
+                         TaskExecutionLock)
 
 
 class ReadOnlyModelAdmin(admin.ModelAdmin):

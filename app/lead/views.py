@@ -2,12 +2,11 @@ import logging
 
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
+from lead.models import Lead, LeadEvent, LeadFollowup, LeadFollowupRule
+from lead.pagination import CommonPagination
+from lead.serializers import (LeadEventSerializer, LeadFollowupRuleSerializer,
+                              LeadFollowupSerializer, LeadSerializer)
 from rest_framework.generics import ListAPIView
-
-from .models import Lead, LeadEvent, LeadFollowup, LeadFollowupRule
-from .pagination import CommonPagination
-from .serializers import (LeadEventSerializer, LeadFollowupRuleSerializer,
-                          LeadFollowupSerializer, LeadSerializer)
 
 logger = logging.getLogger('app')
 
@@ -20,14 +19,14 @@ logger = logging.getLogger('app')
             description='Maximum number of leads to return.',
             required=False,
             location=OpenApiParameter.QUERY,
-            type=OpenApiTypes.INT,
+            type=OpenApiTypes.INT
         ),
         OpenApiParameter(
             name='offset',
             description='Number of records to skip before returning results.',
             required=False,
             location=OpenApiParameter.QUERY,
-            type=OpenApiTypes.INT,
+            type=OpenApiTypes.INT
         ),
         OpenApiParameter(
             name='order_by',
@@ -36,7 +35,7 @@ logger = logging.getLogger('app')
             location=OpenApiParameter.QUERY,
             type=OpenApiTypes.STR,
             enum=tuple(field.name for field in Lead._meta.fields),
-            default='updated_at',
+            default='updated_at'
         ),
         OpenApiParameter(
             name='order_dir',
@@ -45,8 +44,8 @@ logger = logging.getLogger('app')
             location=OpenApiParameter.QUERY,
             type=OpenApiTypes.STR,
             enum=['asc', 'desc'],
-            default='desc',
-        ),
+            default='desc'
+        )
     ],
     responses={200: LeadSerializer(many=True)},
 )
@@ -80,14 +79,14 @@ class LeadListView(ListAPIView):
             description='Maximum number of leads to return.',
             required=False,
             location=OpenApiParameter.QUERY,
-            type=OpenApiTypes.INT,
+            type=OpenApiTypes.INT
         ),
         OpenApiParameter(
             name='offset',
             description='Number of records to skip before returning results.',
             required=False,
             location=OpenApiParameter.QUERY,
-            type=OpenApiTypes.INT,
+            type=OpenApiTypes.INT
         ),
         OpenApiParameter(
             name='order_by',
@@ -96,7 +95,7 @@ class LeadListView(ListAPIView):
             location=OpenApiParameter.QUERY,
             type=OpenApiTypes.STR,
             enum=tuple(field.name for field in LeadFollowup._meta.fields),
-            default='created_at',
+            default='created_at'
         ),
         OpenApiParameter(
             name='order_dir',
@@ -105,8 +104,8 @@ class LeadListView(ListAPIView):
             location=OpenApiParameter.QUERY,
             type=OpenApiTypes.STR,
             enum=['asc', 'desc'],
-            default='desc',
-        ),
+            default='desc'
+        )
     ],
     responses={200: LeadFollowupSerializer(many=True)},
 )
@@ -140,14 +139,14 @@ class LeadFollowupListView(ListAPIView):
             description='Maximum number of leads to return.',
             required=False,
             location=OpenApiParameter.QUERY,
-            type=OpenApiTypes.INT,
+            type=OpenApiTypes.INT
         ),
         OpenApiParameter(
             name='offset',
             description='Number of records to skip before returning results.',
             required=False,
             location=OpenApiParameter.QUERY,
-            type=OpenApiTypes.INT,
+            type=OpenApiTypes.INT
         ),
         OpenApiParameter(
             name='order_by',
@@ -156,7 +155,7 @@ class LeadFollowupListView(ListAPIView):
             location=OpenApiParameter.QUERY,
             type=OpenApiTypes.STR,
             enum=tuple(field.name for field in LeadEvent._meta.fields),
-            default='created_at',
+            default='created_at'
         ),
         OpenApiParameter(
             name='order_dir',
@@ -165,8 +164,8 @@ class LeadFollowupListView(ListAPIView):
             location=OpenApiParameter.QUERY,
             type=OpenApiTypes.STR,
             enum=['asc', 'desc'],
-            default='desc',
-        ),
+            default='desc'
+        )
     ],
     responses={200: LeadEventSerializer(many=True)},
 )
@@ -200,14 +199,14 @@ class LeadEventListView(ListAPIView):
             description='Maximum number of leads to return.',
             required=False,
             location=OpenApiParameter.QUERY,
-            type=OpenApiTypes.INT,
+            type=OpenApiTypes.INT
         ),
         OpenApiParameter(
             name='offset',
             description='Number of records to skip before returning results.',
             required=False,
             location=OpenApiParameter.QUERY,
-            type=OpenApiTypes.INT,
+            type=OpenApiTypes.INT
         ),
         OpenApiParameter(
             name='order_by',
@@ -216,7 +215,7 @@ class LeadEventListView(ListAPIView):
             location=OpenApiParameter.QUERY,
             type=OpenApiTypes.STR,
             enum=tuple(field.name for field in LeadFollowupRule._meta.fields),
-            default='status',
+            default='status'
         ),
         OpenApiParameter(
             name='order_dir',
@@ -225,8 +224,8 @@ class LeadEventListView(ListAPIView):
             location=OpenApiParameter.QUERY,
             type=OpenApiTypes.STR,
             enum=['asc', 'desc'],
-            default='desc',
-        ),
+            default='desc'
+        )
     ],
     responses={200: LeadFollowupRuleSerializer(many=True)},
 )

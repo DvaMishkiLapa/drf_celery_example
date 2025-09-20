@@ -37,7 +37,7 @@ def _collect_simple_followups() -> List[Tuple[int, int]]:
     lead_candidates = models.Lead.objects.annotate(
         elapsed=ExpressionWrapper(
             Now() - F('updated_at'),
-            output_field=DurationField(),
+            output_field=DurationField()
         )
     ).filter(
         status=OuterRef('status'),  # Match only leads sharing the rule status
@@ -66,16 +66,16 @@ def _collect_simple_followups() -> List[Tuple[int, int]]:
         stalled_leads = models.Lead.objects.annotate(
             elapsed=ExpressionWrapper(
                 Now() - F('updated_at'),
-                output_field=DurationField(),
+                output_field=DurationField()
             )
         ).filter(
             status=status,
-            elapsed__gte=delay_span,
+            elapsed__gte=delay_span
         ).exclude(
             Exists(
                 models.LeadFollowup.objects.filter(
                     lead_id=OuterRef('id'),
-                    rule_id=rule_id,
+                    rule_id=rule_id
                 ).filter(recent_followup_guard)
             )
         ).values_list('id', flat=True)
@@ -103,13 +103,13 @@ def task_send_followup(lead_id: int, rule_id: int):
     if models.LeadFollowup.objects.filter(
         lead_id=lead_id,
         rule_id=rule_id,
-        created_at__gte=cutoff,
+        created_at__gte=cutoff
     ).exists():
         logger.debug(
             'Skip followup (lead=%s, rule=%s): recently sent within %s',
             lead_id,
             rule_id,
-            FOLLOWUP_REPEAT_THRESHOLD,
+            FOLLOWUP_REPEAT_THRESHOLD
         )
         return
 

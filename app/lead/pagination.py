@@ -13,7 +13,7 @@ class CommonPagination(LimitOffsetPagination):
     def get_paginated_response(self, data):
         return Response({
             'count': self.count,
-            'results': data,
+            'results': data
         })
 
 

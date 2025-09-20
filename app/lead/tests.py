@@ -5,10 +5,9 @@ from unittest.mock import patch
 
 from django.test import TestCase, override_settings
 from django.utils import timezone
-
-from .models import (Lead, LeadFollowup, LeadFollowupRule, LeadStatus,
-                     TaskExecutionLock)
-from .tasks import task_collect_followups, task_send_followup
+from lead.models import (Lead, LeadFollowup, LeadFollowupRule, LeadStatus,
+                         TaskExecutionLock)
+from lead.tasks import task_collect_followups, task_send_followup
 
 
 def _get_random_phone_number() -> str:
