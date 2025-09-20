@@ -13,4 +13,6 @@ COPY app /app
 
 WORKDIR /app
 
+RUN python3 manage.py collectstatic
+
 CMD daphne -b 0.0.0.0 -p 8080 app.asgi:application --http-timeout 30 --verbosity 0

@@ -29,7 +29,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 # =======================================================
 
 import sys
-from os import environ, getenv
+from os import environ, getenv, path
 from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
@@ -102,6 +102,12 @@ USE_TZ = True
 # =======================================================
 
 STATIC_URL = 'static/'
+STATIC_ROOT = path.join(BASE_DIR, 'staticfiles')
+STORAGES = {
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    }
+}
 
 # =======================================================
 # DATABASE CONFIGURATION
@@ -166,6 +172,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
