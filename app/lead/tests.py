@@ -1,4 +1,4 @@
-import secrets
+import random
 from datetime import timedelta
 
 from django.test import TestCase, override_settings
@@ -8,18 +8,16 @@ from .models import Lead, LeadFollowup, LeadFollowupRule, LeadStatus
 from .tasks import task_collect_followups, task_send_followup
 
 
+def _get_random_phone_number() -> str:
+    return f'+{str(random.randint(10_000_000, 99_999_999))}'
+
+
 class CollectFollowupsTaskTest(TestCase):
 
     # Enables Celery's “eager” mode: tasks launched via task.delay() are executed immediately
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True, CELERY_TASK_EAGER_PROPAGATES=True)
     def test_overdue_lead_enqueues_followup(self):
-        # Generate a phone number until we find a value that does not collide with existing leads
-        while True:
-            # Keep format numeric and deterministic length
-            phone_number = '+79' + ''.join(str(secrets.randbelow(10)) for _ in range(8))
-            if not Lead.objects.filter(phone=phone_number).exists():
-                break
-
+        phone_number = _get_random_phone_number()
         lead = Lead.objects.create(phone=phone_number, status=LeadStatus.NEW)
         rule = LeadFollowupRule.objects.create(text='ping', status=LeadStatus.NEW, delay=1, is_enabled=True)
         # Push the timestamp far enough back so the lead definitely exceeds the rule delay
@@ -34,7 +32,7 @@ class CollectFollowupsTaskTest(TestCase):
         self.assertIsNotNone(followup)
 
     def test_skip_recent_followup(self):
-        phone_number = '+79' + ''.join(str(secrets.randbelow(10)) for _ in range(8))
+        phone_number = _get_random_phone_number()
         lead = Lead.objects.create(phone=phone_number, status=LeadStatus.NEW)
         rule = LeadFollowupRule.objects.create(text='ping', status=LeadStatus.NEW, delay=1, is_enabled=True)
         LeadFollowup.objects.create(lead=lead, rule=rule, created_at=timezone.now())
