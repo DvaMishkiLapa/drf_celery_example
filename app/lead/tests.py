@@ -61,6 +61,26 @@ class CollectFollowupsTaskTest(TestCase):
         self.assertTrue(any('Skip followup' in message for message in log_capture.output))
         self.assertEqual(LeadFollowup.objects.filter(lead=lead, rule=rule).count(), 1)
 
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True, CELERY_TASK_EAGER_PROPAGATES=True)
+    def test_reenqueue_after_repeat_threshold(self):
+        phone_number = _get_random_phone_number()
+        lead = Lead.objects.create(phone=phone_number, status=LeadStatus.NEW)
+        rule = LeadFollowupRule.objects.create(text='ping', status=LeadStatus.NEW, delay=1, is_enabled=True)
+
+        overdue_timestamp = timezone.now() - timedelta(minutes=rule.delay * 4)
+        Lead.objects.filter(pk=lead.pk).update(updated_at=overdue_timestamp)
+
+        initial_followup = LeadFollowup.objects.create(lead=lead, rule=rule)
+        LeadFollowup.objects.filter(pk=initial_followup.pk).update(
+            created_at=overdue_timestamp + timedelta(minutes=rule.delay)
+        )
+
+        with patch('lead.tasks.FOLLOWUP_REPEAT_THRESHOLD', timedelta(minutes=1)):
+            payload = task_collect_followups.delay()
+            payload.get(timeout=2)
+
+        self.assertEqual(LeadFollowup.objects.filter(lead=lead, rule=rule).count(), 2)
+
     def test_collect_followups_locked_execution(self):
         release_event = Event()
         entered_event = Event()
