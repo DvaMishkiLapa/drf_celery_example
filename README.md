@@ -11,10 +11,13 @@ An example project built with Django REST Framework and Celery.
     - [2.1 Bootstrap Commands](#21-bootstrap-commands)
     - [2.2 Run Commands](#22-run-commands)
     - [2.3 Miscellaneous Commands](#23-miscellaneous-commands)
-  - [3. Nix Flake Setup](#3-nix-flake-setup)
+  - [3. Nix Flakes Setup](#3-nix-flakes-setup)
     - [3.1 Run Commands](#31-run-commands)
     - [3.2 Problem solving](#32-problem-solving)
   - [4. ER-diagram](#4-er-diagram)
+  - [5. FAQ](#5-faq)
+    - [5.1 Session data corrupted](#51-session-data-corrupted)
+    - [5.2 Why does the daphne port differ in Docker and Nix Flakes?](#52-why-does-the-daphne-port-differ-in-docker-and-nix-flakes)
 
 ## 1. Configuration Variables
 
@@ -39,7 +42,7 @@ An example project built with Django REST Framework and Celery.
 | `CELERY_BROKER_HEARTBEAT`              | `30`                           | Heartbeat interval (seconds) used to keep the broker connection alive and detect drops.                                                   |
 | `FOLLOWUP_REPEAT_THRESHOLD`            | `1440`                         | Minutes to suppress a repeat follow-up notification after the previous one was sent.                                                      |
 | `TASK_LOCK_TIMEOUT`                    | `60`                           | Expiration (seconds) for the database lock used by the `singleton_task` decorator; after this delay a stale lock is considered abandoned. |
-| `NIX_DAPHNE_PORT`                      | `8081`                         | Port used for web communication with the Django project. Used when starting daphne, only in the Nix Flake build.                          |
+| `NIX_DAPHNE_PORT`                      | `8081`                         | Port used for web communication with the Django project. Used when starting daphne, only in the Nix Flakes build.                          |
 
 Configuration files for Docker and Nix builds - `env.list`.
 
@@ -104,7 +107,7 @@ Create an admin user:
 docker compose run --rm app python3 manage.py createsuperuser
 ```
 
-## 3. Nix Flake Setup
+## 3. Nix Flakes Setup
 
 Nix provides an alternative stack that mirrors the Docker Compose.
 Install [Nix](https://nixos.org/download) before continuing.
@@ -142,7 +145,7 @@ Both commands reuse `env.list`. Host names such as `postgres` and `redis` are re
 
 ### 3.2 Problem solving
 
-My Nix Flake build script is far from ideal. If something goes wrong and I'm left with child processes:
+My Nix Flakes build script is far from ideal. If something goes wrong and I'm left with child processes:
 
 ```bash
 ./nix/scripts/kill-services.sh
@@ -151,3 +154,26 @@ My Nix Flake build script is far from ideal. If something goes wrong and I'm lef
 ## 4. ER-diagram
 
 ![ER-diagram](./other/all_models.png)
+
+## 5. FAQ
+
+### 5.1 Session data corrupted
+
+If you see something like this in the logs:
+
+```log
+app-1     | 2025-09-20 21:00:36 | WARNING | django.security.SuspiciousSession (base) | Session data corrupted
+```
+
+Clear your browser's cookies for the domain where the application is running (or on localhost if you haven't changed anything).
+
+To prevent this error, set DJANGO_SECRET_KEY. One way to generate it is:
+
+```bash
+echo "DJANGO_SECRET_KEY=\"$(openssl rand -base64 50 | tr -d '\n')\""
+```
+
+### 5.2 Why does the daphne port differ in Docker and Nix Flakes?
+
+Nix Flakes uses [process-compose](https://github.com/F1bonacc1/process-compose), which by default occupies port 8080 with its Web service.
+I chose 8081 as the default for daphne inside Nix. Not 80, because in WSL2, where I was developing, it requires root access.
