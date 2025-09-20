@@ -32,6 +32,9 @@ class Lead(models.Model):
             ),  # Accelerate queries that fetch all leads in a particular pipeline step
         ]
 
+    def __str__(self) -> str:
+        return f'{self.__class__.__name__}({self.pk}, {self.phone})'
+
 
 class LeadEvent(models.Model):
     '''
@@ -40,7 +43,6 @@ class LeadEvent(models.Model):
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='events')
     status = models.CharField(max_length=16, choices=LeadStatus.choices)  # Snapshot of the status right after the transition
     created_at = models.DateTimeField(auto_now_add=True)
-    # created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     class Meta:
         indexes = [
@@ -49,6 +51,9 @@ class LeadEvent(models.Model):
                 name='lead_event_latest_idx'
             ),  # Support queries that grab 'latest event per lead' without table scans
         ]
+
+    def __str__(self) -> str:
+        return f'{self.__class__.__name__}({self.pk}, {self.status})'
 
 
 class LeadFollowupRule(models.Model):
@@ -76,6 +81,9 @@ class LeadFollowupRule(models.Model):
                 name='lead_rule_status_delay_uniq',
             ),  # Prevent duplicate followup delay rules per status so scheduling logic stays deterministic
         ]
+
+    def __str__(self) -> str:
+        return f'{self.__class__.__name__}({self.pk}, {self.text})'
 
 
 class LeadFollowup(models.Model):
